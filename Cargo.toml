@@ -1,0 +1,13 @@
+[package]
+name = "matrix-discord-sync"
+version = "0.1.0"
+authors = ["Hunter Jarrell <hjarrell555@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serenity = "0.8"
+kankyo = "0.3"
+env_logger = "0.7"
+log = "0.4"
