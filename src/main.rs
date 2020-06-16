@@ -31,10 +31,11 @@ fn main() {
     matrix_thread.join().expect("error joining matrix");
 }
 
-fn print_event(event: discord::ChannelEvent) {
+fn print_event(event: discord::DiscordToMatrixMsg) {
+    let event = event.event;
     match event {
-        discord::ChannelEvent::NewChannel(nc) => info!("New channel event!"),
-        discord::ChannelEvent::UpdatedChannel(nc1, nc2) => info!("Updated channel event!"),
-        discord::ChannelEvent::DeletedChannel(nc) => info!("Deleted channel event!"),
+        discord::ChannelEvent::NewChannel(_nc) => info!("New channel event!"),
+        discord::ChannelEvent::UpdatedChannel(_nc1, _nc2) => info!("Updated channel event!"),
+        discord::ChannelEvent::DeletedChannel(_nc) => info!("Deleted channel event!"),
     }
 }
