@@ -1,41 +1,32 @@
-use std::sync::mpsc;
+use std::sync::{Arc, Mutex, mpsc};
+
+// use tokio::sync::mpsc;
 
 use log::{error, info};
 
 mod discord;
+mod matrix;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     kankyo::init().expect("Failed to load .env file.\nSee .env.example in project root.");
     env_logger::init();
 
     let (tx_to_matrix, rx_matrix) = mpsc::channel();
+
+    // let locked_rx: Arc<Mutex<mpsc::Receiver<discord::DiscordToMatrixMsg>>> = Arc::new(Mutex::new(rx_matrix));
 
     info!("Starting Discord bot");
     let discord_thread = std::thread::spawn(move || {
         discord::init(tx_to_matrix);
     });
 
-    let matrix_thread = std::thread::spawn(move || {
-        loop {
-            match rx_matrix.recv() {
-                Ok(event) => print_event(event),
-                Err(_e) => {
-                    error!("Error recieiving message from Discord.");
-                    panic!("");
-                }
-            };
-        }
-    });
+    info!("Starting Matrix bot");
+    // let matrix_thread = std::thread::spawn(move || {
+        // let lock = locked_rx.lock();
+        matrix::init(&rx_matrix).await;
+    // });
 
     discord_thread.join().expect("Error joining Discord bot thread.");
-    matrix_thread.join().expect("error joining matrix");
-}
-
-fn print_event(event: discord::DiscordToMatrixMsg) {
-    let event = event.event;
-    match event {
-        discord::ChannelEvent::NewChannel(_nc) => info!("New channel event!"),
-        discord::ChannelEvent::UpdatedChannel(_nc1, _nc2) => info!("Updated channel event!"),
-        discord::ChannelEvent::DeletedChannel(_nc) => info!("Deleted channel event!"),
-    }
+    // matrix_thread.join().expect("Error joining matrix");
 }

@@ -1,4 +1,5 @@
-use std::{env, sync::Arc, sync::mpsc, collections::HashSet};
+use std::{env, sync::Arc, collections::HashSet, sync::mpsc};
+// use tokio::sync::mpsc;
 
 use serenity::{
     http::Http,
@@ -194,6 +195,8 @@ pub fn init(tx: mpsc::Sender<DiscordToMatrixMsg>) {
             )
             .group(&ADMIN_GROUP),
     );
+
+    info!("Discord bot started.");
     if let Err(why) = client.start() {
         println!("Err with client: {:?}", why);
     }
