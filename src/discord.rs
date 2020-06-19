@@ -1,5 +1,4 @@
 use std::{env, sync::Arc, collections::HashSet, sync::mpsc};
-// use tokio::sync::mpsc;
 
 use serenity::{
     http::Http,
@@ -139,7 +138,6 @@ pub fn handle_deleted_channel(http: Arc<Http>, channel: GuildChannel, tx: &mpsc:
 }
 
 #[command]
-// Limits the usage of this command to roles named:
 #[allowed_roles("officer")]
 fn sync(ctx: &mut Context, msg: &Message, _args: Args) -> CommandResult {
     if let Some(channel) = msg.channel(&ctx.cache) {

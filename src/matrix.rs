@@ -13,7 +13,7 @@ use crate::discord::{DiscordToMatrixMsg, ChannelEvent};
 
 pub async fn handle_discord_to_matrix_msg(msg: DiscordToMatrixMsg, client: &HttpsClient) {
     info!("Recieved new DiscordToMatrixMsg");
-    let response = match msg.event {
+    let _response = match msg.event {
         ChannelEvent::NewChannel(channel) => handle_new_channel(channel, client).await,
         // ChannelEvent::UpdatedChannel(old_channel, new_channel) => handle_updated_channel(old_channel, new_channel),
         // ChannelEvent::DeletedChannel(channel) => handle_deleted_channel(channel, msg.http),
@@ -66,7 +66,7 @@ pub async fn create_room(room_name: String, client: &HttpsClient) -> Result<Stri
 pub async fn init(rx: &mpsc::Receiver<DiscordToMatrixMsg>) {
     let homeserver_url = env::var("MATRIX_HOME_SERVER").expect("Expected a MATRIX_HOME_SERVER in the environment").parse().unwrap();
     let access_token = env::var("MATRIX_ACCESS_TOKEN").expect("Expected a MATRIX_ACCESS_TOKEN in the environment");
-    let work = async {
+    let _work = async {
         let session = Session {access_token, identification: None};
         info!("Matrix bot started!");
         let client = Client::https(homeserver_url, Some(session));
