@@ -9,10 +9,11 @@ use serenity::model::id::{ChannelId, GuildId};
 use log::{error, info};
 
 use crate::discord::{DiscordToMatrixMsg, ChannelEvent};
+use std::borrow::Cow;
 
 
 pub async fn handle_discord_to_matrix_msg(msg: DiscordToMatrixMsg, client: &HttpsClient) {
-    info!("Recieved new DiscordToMatrixMsg");
+    info!("Received new DiscordToMatrixMsg");
     let _response = match msg.event {
         ChannelEvent::NewChannel(channel) => handle_new_channel(channel, client).await,
         // ChannelEvent::UpdatedChannel(old_channel, new_channel) => handle_updated_channel(old_channel, new_channel),
@@ -39,7 +40,7 @@ pub async fn create_room(room_name: String, client: &HttpsClient) -> Result<Stri
     let resp = client.request(r0::room::create_room::Request { 
         creation_content: None,
         initial_state: Vec::new(),
-        invite: vec![UserId::try_from("@hjarrell:ufopensource.club").unwrap()],
+        invite: vec![UserId::try_from(Cow::from("@hjarrell:ufopensource.club")).unwrap()],
         invite_3pid: Vec::new(),
         is_direct: None,
         name: None,
@@ -57,7 +58,7 @@ pub async fn create_room(room_name: String, client: &HttpsClient) -> Result<Stri
             Ok(r.room_id.to_string())
         },
         Err(e) => {
-            error!("Error recieved creating room {}: ", e);
+            error!("Error received creating room {}: ", e);
             Err(())
         },
     }
@@ -75,7 +76,7 @@ pub async fn init(rx: &mpsc::Receiver<DiscordToMatrixMsg>) {
             info!("In main loop.");
             let msg = rx.recv();
             if msg.is_err() {
-                error!("Error reciving message from discord->matrix mpsc.");
+                error!("Error receiving message from discord->matrix mpsc.");
                 break;
             } else {
                 handle_discord_to_matrix_msg(msg.unwrap(), &client).await;

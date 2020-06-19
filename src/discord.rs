@@ -52,6 +52,16 @@ impl EventHandler for Handler {
         });
     }
 
+    fn channel_delete(&self, ctx: Context, channel: Arc<RwLock<GuildChannel>>) {
+        let c = unwrap_and_copy_channel(&channel);
+        let tx = get_tx_clone(&ctx);
+        let http = ctx.http.clone();
+        std::thread::spawn(move || {
+            let http = http.clone();
+            handle_deleted_channel(http, c, &tx);
+        });
+    }
+
     fn channel_update(&self, ctx: Context, old: Option<Channel>, new: Channel) {
         if old.is_none() {
             return;
@@ -69,21 +79,11 @@ impl EventHandler for Handler {
             let http = ctx.http.clone();
             std::thread::spawn(move || {
                 let http = http.clone();
-                handle_updated_channel(http, old_channel, new_channel, &tx); 
+                handle_updated_channel(http, old_channel, new_channel, &tx);
             });
         } else {
             return;
         }
-    }
-
-    fn channel_delete(&self, ctx: Context, channel: Arc<RwLock<GuildChannel>>) {
-        let c = unwrap_and_copy_channel(&channel);
-        let tx = get_tx_clone(&ctx);
-        let http = ctx.http.clone();
-        std::thread::spawn(move || {
-            let http = http.clone();
-            handle_deleted_channel(http, c, &tx);
-        });
     }
 }
 
