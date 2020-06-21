@@ -1,5 +1,7 @@
-use std::{env, sync::mpsc};
+use std::env;
 use std::convert::TryFrom;
+
+use flume;
 
 use ruma_client::{Client, Session, api::r0, HttpsClient};
 use ruma_client::identifiers::user_id::UserId;
@@ -64,7 +66,7 @@ pub async fn create_room(room_name: String, client: &HttpsClient) -> Result<Stri
     }
 }
 
-pub async fn init(rx: &mpsc::Receiver<DiscordToMatrixMsg>) {
+pub async fn init(rx: &flume::Receiver<DiscordToMatrixMsg>) {
     let homeserver_url = env::var("MATRIX_HOME_SERVER").expect("Expected a MATRIX_HOME_SERVER in the environment").parse().unwrap();
     let access_token = env::var("MATRIX_ACCESS_TOKEN").expect("Expected a MATRIX_ACCESS_TOKEN in the environment");
     let _work = async {

@@ -1,5 +1,4 @@
-use std::sync::mpsc;
-
+use flume;
 use log::{info};
 
 mod discord;
@@ -10,7 +9,7 @@ async fn main() {
     kankyo::init().expect("Failed to load .env file.\nSee .env.example in project root.");
     env_logger::init();
 
-    let (tx_to_matrix, rx_matrix) = mpsc::channel();
+    let (tx_to_matrix, rx_matrix) = flume::unbounded();
 
     info!("Starting Discord bot");
     let discord_thread = std::thread::spawn(move || {

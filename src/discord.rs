@@ -1,4 +1,6 @@
-use std::{env, sync::Arc, collections::HashSet, sync::mpsc};
+use std::{env, sync::Arc, collections::HashSet};
+
+use flume;
 
 use serenity::{
     http::Http,
@@ -37,7 +39,7 @@ pub struct DiscordToMatrixMsg {
 struct SharedDataContainer;
 
 impl TypeMapKey for SharedDataContainer {
-    type Value = Arc<Mutex<mpsc::Sender<DiscordToMatrixMsg>>>;
+    type Value = Arc<Mutex<flume::Sender<DiscordToMatrixMsg>>>;
 }
 
 struct Handler;
@@ -91,14 +93,14 @@ pub fn unwrap_and_copy_channel(wrapped_channel: &Arc<RwLock<GuildChannel>>) -> G
     (*wrapped_channel.read()).clone()
 }
 
-pub fn get_tx_clone(ctx: &Context) -> mpsc::Sender<DiscordToMatrixMsg> {
+pub fn get_tx_clone(ctx: &Context) -> flume::Sender<DiscordToMatrixMsg> {
     let data = ctx.data.read();
     let tx_mutex = data.get::<SharedDataContainer>().expect("Error retrieving SharedDataContainer");
     let tx = tx_mutex.lock();
     tx.clone()
 }
 
-pub fn handle_new_channel(http: Arc<Http>, channel: GuildChannel, tx: &mpsc::Sender<DiscordToMatrixMsg>) {
+pub fn handle_new_channel(http: Arc<Http>, channel: GuildChannel, tx: &flume::Sender<DiscordToMatrixMsg>) {
     info!(
         "Channel {} created with ID {} and server {}\n",
         channel.name, channel.id, channel.guild_id
@@ -110,7 +112,7 @@ pub fn handle_new_channel(http: Arc<Http>, channel: GuildChannel, tx: &mpsc::Sen
     };
 }
 
-pub fn handle_updated_channel(http: Arc<Http>, old_channel: GuildChannel, new_channel: GuildChannel, tx: &mpsc::Sender<DiscordToMatrixMsg>) {
+pub fn handle_updated_channel(http: Arc<Http>, old_channel: GuildChannel, new_channel: GuildChannel, tx: &flume::Sender<DiscordToMatrixMsg>) {
     info!(
         "Channel {} updated with ID {} and server {}. Now called {}\n",
         old_channel.name,
@@ -125,7 +127,7 @@ pub fn handle_updated_channel(http: Arc<Http>, old_channel: GuildChannel, new_ch
     };
 }
 
-pub fn handle_deleted_channel(http: Arc<Http>, channel: GuildChannel, tx: &mpsc::Sender<DiscordToMatrixMsg>) {
+pub fn handle_deleted_channel(http: Arc<Http>, channel: GuildChannel, tx: &flume::Sender<DiscordToMatrixMsg>) {
     info!(
         "Channel {} deleted with ID {} and server {}\n",
         channel.name, channel.id, channel.guild_id
@@ -166,7 +168,7 @@ fn sync(ctx: &mut Context, msg: &Message, _args: Args) -> CommandResult {
 #[commands(sync)]
 struct Admin;
 
-pub fn init(tx: mpsc::Sender<DiscordToMatrixMsg>) {
+pub fn init(tx: flume::Sender<DiscordToMatrixMsg>) {
     let token = env::var("DISCORD_TOKEN").expect("Expected a DISCORD_TOKEN in the environment");
     let mut client = Client::new(&token, Handler).expect("Error creating Discord client");
 
