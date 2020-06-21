@@ -1,0 +1,1 @@
+from .matrix_discord_snyc import MatrixDiscordSync

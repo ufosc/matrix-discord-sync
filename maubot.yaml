@@ -1,0 +1,15 @@
+maubot: 0.1.0
+id: club.ufopensource.matrixdiscordsync
+version: 1.0.0
+license: MIT
+modules:
+- matrix_discord_sync
+main_class: MatrixDiscordSync
+database: true
+
+dependencies:
+- discord.py==1.3.3
+
+# Instruct the build tool to include the base config.
+extra_files:
+- base-config.yaml
